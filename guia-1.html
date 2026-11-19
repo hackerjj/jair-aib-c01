@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<script src="auth.js"></script>
+<script src="sync.js?v=1.0.0"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía 1 · AIB-C01</title>
+<style>
+  :root { --bg:#0f172a; --card:#111c33; --ink:#e2e8f0; --muted:#94a3b8; --accent:#ff9900; --ok:#22c55e; --bad:#ef4444; --line:#1e2a44; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+  .wrap { padding-top:44px !important; max-width:820px; margin:0 auto; padding:20px 16px 60px; }
+  header { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .pbar { flex:1; height:12px; background:#1e2a44; border-radius:99px; overflow:hidden; }
+  .pbar i { display:block; height:100%; width:0; background:var(--accent); transition:width .3s; }
+  .timer { font-variant-numeric:tabular-nums; font-weight:700; font-size:16px; min-width:64px; text-align:right; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; }
+  .kind { font-size:12px; color:var(--accent); font-weight:700; letter-spacing:.4px; text-transform:uppercase; }
+  h1 { font-size:24px; margin:0 0 8px; }
+  h2 { font-size:19px; margin:6px 0 16px; }
+  p.muted { color:var(--muted); }
+  .btn { background:var(--accent); color:#111; border:0; border-radius:10px; padding:12px 18px; font-weight:800; font-size:15px; cursor:pointer; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  .btn.sec { background:#1e2a44; color:var(--ink); }
+  button:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .col { display:flex; flex-direction:column; gap:10px; }
+  .chip { display:block; width:100%; text-align:left; background:#0d1629; color:var(--ink); border:2px solid var(--line); border-radius:10px; padding:11px 12px; font-size:14.5px; cursor:pointer; }
+  .chip:hover { border-color:#334366; }
+  .chip.sel { border-color:var(--accent); background:#1a2540; }
+  .chip.done { border-color:var(--ok); background:#10291c; color:#9be7b4; cursor:default; }
+  .chip.wrong { border-color:var(--bad); background:#2a1215; }
+  .chip.used { visibility:hidden; }
+  .bank { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+  .bank .chip { width:auto; display:inline-block; }
+  .sentence { font-size:17px; line-height:2.2; }
+  .blank { display:inline-block; min-width:130px; border:0; border-bottom:2px solid var(--accent); padding:0 8px; margin:0 3px; text-align:center; cursor:pointer; background:none; color:var(--ink); font-size:16px; }
+  .actions { display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+  .fb { margin-top:16px; padding:14px; border-radius:10px; font-size:14.5px; }
+  .fb.ok { background:#10291c; border:1px solid #1f6b3c; }
+  .fb.bad { background:#2a1215; border:1px solid #7f1d1d; }
+  .fb b.t { display:block; font-size:16px; margin-bottom:4px; }
+  .fb.ok b.t { color:var(--ok); } .fb.bad b.t { color:#fca5a5; }
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin-top:8px; }
+  th,td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:#0d1629; color:var(--accent); }
+  tr:nth-child(even) td { background:#0d1629; }
+  .tip { border-left:3px solid var(--accent); background:#0d1629; padding:9px 12px; margin:14px 0 0; border-radius:0 8px 8px 0; font-size:14.5px; } .tip b { color:var(--accent); }
+  .flash { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px; }
+  .fcard { background:#0d1629; border:2px solid var(--line); border-radius:12px; padding:14px; min-height:110px; cursor:pointer; color:var(--ink); font-size:14.5px; text-align:left; width:100%; }
+  .fcard .term { font-weight:800; color:var(--accent); display:block; margin-bottom:4px; }
+  .fcard .hint { color:var(--muted); font-size:12.5px; }
+  .fcard.flip { border-color:#1f6b3c; }
+  .score { font-size:40px; font-weight:800; color:var(--accent); }
+  #msg { color:var(--ok); font-size:13px; margin-top:8px; min-height:1em; }
+  @media (max-width:560px){ .grid2{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<a href="index.html" style="position:fixed;top:10px;left:12px;z-index:50;background:#1e2a44;color:#e2e8f0;text-decoration:none;font:700 13px -apple-system,BlinkMacSystemFont,sans-serif;padding:7px 11px;border-radius:8px">Inicio</a>
+
+<div class="wrap">
+  <header>
+    <div class="pbar" aria-hidden="true"><i id="pb"></i></div>
+    <div class="timer" id="timer" aria-label="Tiempo transcurrido">00:00</div>
+    <button type="button" class="btn sec" id="restart" style="padding:6px 10px;font-size:13px">Reiniciar</button>
+  </header>
+  <main id="app" aria-live="polite"></main>
+</div>
+
+<script>
+const T = [
+ {id:"tipo", title:"1. ¿Qué tipo de solución? Reglas, ML, IA generativa o agentes",
+  head:["Si el problema...","Solución","Ejemplo de negocio"],
+  rows:[["Tiene reglas fijas, claras y que se pueden escribir","Automatización con reglas","Aprobar reembolsos menores a 500 pesos"],
+        ["Necesita encontrar patrones en datos históricos y predecir","Machine learning","Pronosticar demanda, detectar fraude, predecir churn"],
+        ["Necesita crear contenido: textos, resúmenes, imágenes, código","IA generativa","Resumir llamadas, redactar correos, responder preguntas"],
+        ["Necesita planear y ejecutar tareas de varios pasos usando herramientas","Agente de IA","Revisar un pedido, crear el reembolso y avisar al cliente"],
+        ["No tiene datos, el error es inaceptable o una regla simple lo resuelve","Quizá no hace falta IA","Calcular el IVA de una factura"]],
+  tip:"<b>Truco:</b> el examen premia saber cuándo NO usar IA. Si una regla sencilla resuelve el problema, la regla gana: es más barata, explicable y predecible.",
+  flash:[["Agente de IA","Sistema que planea, decide con cierta autonomía y usa herramientas (APIs, bases de datos, otros agentes) para cumplir un objetivo."],["Orquestación","Cómo se coordinan varios agentes o pasos: uno reparte el trabajo y otros lo ejecutan."],["Inferencia","Usar un modelo ya entrenado para obtener una predicción o una respuesta."]],
+  match:[["Aprobar reembolsos con reglas escritas","Automatización con reglas"],["Predecir qué clientes se van a ir","Machine learning"],["Resumir transcripciones de llamadas","IA generativa"],["Revisar un pedido, crear el reembolso y avisar","Agente de IA"]],
+  fill:[{text:"Si las reglas son fijas y conocidas uso ___. Si hay que crear un resumen uso ___.", ans:["reglas","IA generativa"], bank:["machine learning","IA generativa","reglas","un agente"]},
+        {text:"Un agente se distingue porque tiene ___ y puede usar ___, como llamar APIs de la empresa.", ans:["autonomía","herramientas"], bank:["herramientas","temperatura","autonomía","etiquetas"]}]},
+ {id:"datos", title:"2. Datos: el combustible de la IA",
+  head:["Concepto","Qué significa","Por qué le importa al negocio"],
+  rows:[["Datos estructurados","Tablas con columnas fijas (ventas, inventario)","Se analizan fácil con ML tradicional"],
+        ["Datos no estructurados","Texto libre, correos, audio, imágenes, PDFs","La IA generativa saca valor de ellos; son la mayoría de los datos de una empresa"],
+        ["Calidad de datos","Datos completos, correctos, actuales y sin duplicados","Basura entra, basura sale: datos malos dan decisiones malas"],
+        ["Entrenamiento con datos históricos","El modelo aprende patrones del pasado","Si el pasado tenía sesgos o ya cambió, el modelo los repite"],
+        ["Model drift","El desempeño cae porque el mundo cambió","Por eso la IA necesita monitoreo y actualización continua"]],
+  tip:"<b>Truco:</b> cuando una pregunta dice que el modelo \"empezó a fallar con el tiempo\", la respuesta casi siempre es monitorear y reentrenar con datos recientes.",
+  flash:[["ISO/IEC 42001","Norma internacional para un sistema de gestión de IA: cómo gobernar la IA en una organización."],["ISO/IEC 23053","Marco de referencia y vocabulario común para sistemas de IA que usan machine learning."]],
+  match:[["Correos, audio y PDFs","Datos no estructurados"],["Tabla de ventas con columnas fijas","Datos estructurados"],["Basura entra, basura sale","Calidad de datos"],["El desempeño cae porque el mundo cambió","Model drift"]],
+  fill:[{text:"La norma para un sistema de gestión de IA es ISO/IEC ___. El vocabulario común de sistemas de ML es ISO/IEC ___.", ans:["42001","23053"], bank:["27001","23053","42001","9001"]}]},
+ {id:"genai", title:"3. IA generativa con mirada de negocio",
+  head:["Técnica","Cuándo","Costo y esfuerzo"],
+  rows:[["Prompt engineering","Mejorar instrucciones, formato o tono","El más bajo; se prueba primero"],
+        ["RAG","Responder con documentos propios que cambian","Bajo; no reentrena el modelo"],
+        ["Fine-tuning","Fijar estilo o tarea con ejemplos etiquetados","Medio a alto; entrena el modelo"],
+        ["Entrenar desde cero","Casi nunca para una empresa","El más alto"]],
+  tip:"<b>Truco:</b> la ventana de contexto limita cuánto texto cabe en una solicitud. Si un documento no cabe, el modelo no lo puede considerar completo. Más tokens también significan más costo.",
+  flash:[["Ventana de contexto","Máximo de tokens que el modelo puede considerar en una solicitud, sumando la entrada y la salida."],["Alucinación","Respuesta que suena creíble pero es falsa. RAG y la revisión humana la reducen."]],
+  match:[["Respuestas con las pólizas vigentes de la empresa","RAG"],["Cambiar el tono de las respuestas sin entrenar","Prompt engineering"],["Fijar el formato con miles de ejemplos etiquetados","Fine-tuning"],["Un contrato de 400 páginas no cabe completo","Ventana de contexto"]],
+  fill:[{text:"Lo primero que se prueba es ___ porque no cuesta entrenar. Para usar documentos que cambian se usa ___.", ans:["prompt engineering","RAG"], bank:["fine-tuning","RAG","prompt engineering","entrenar desde cero"]}]},
+ {id:"shadow", title:"4. Shadow AI: el riesgo de prohibir",
+  head:["Situación","Qué pasa","Qué recomienda AWS"],
+  rows:[["La empresa prohíbe la IA generativa","Los empleados usan herramientas públicas a escondidas","No prohibir sin dar una alternativa"],
+        ["Empleados pegan datos de clientes en chatbots públicos","Riesgo de fuga de datos y de cumplimiento","Dar herramientas aprobadas y seguras"],
+        ["Nadie sabe qué herramientas se usan","No hay visibilidad ni control","Monitorear el uso y clasificar las herramientas"]],
+  tip:"<b>Truco:</b> la respuesta correcta sobre shadow AI casi nunca es \"prohibir todo\". Es clasificar las herramientas (aprobadas, bloqueadas, en evaluación), ofrecer opciones aprobadas y monitorear.",
+  flash:[["Shadow AI","Uso de herramientas de IA sin aprobación ni control de la empresa."],["Clasificación de herramientas","Lista pública de herramientas aprobadas, bloqueadas y en evaluación, para que todos sepan qué pueden usar."]],
+  match:[["Herramienta revisada y permitida","Aprobada"],["Herramienta que no cumple las reglas","Bloqueada"],["Herramienta que se está revisando","En evaluación"]],
+  fill:[{text:"Para reducir el shadow AI se dan herramientas ___ y se ___ su uso.", ans:["aprobadas","monitorea"], bank:["prohíbe","monitorea","aprobadas","públicas"]}]},
+ {id:"casos", title:"5. Elegir y priorizar casos de uso",
+  head:["Criterio","Pregunta clave"],
+  rows:[["Valor de negocio","¿Cuánto ahorra, vende o mejora? ¿Es medible?"],
+        ["Factibilidad","¿Hay datos, talento, presupuesto y tiempo?"],
+        ["Alineación estratégica","¿Apoya los objetivos actuales de la empresa?"],
+        ["Sostenibilidad","¿Se puede mantener y escalar con costo razonable?"],
+        ["Riesgo","¿Qué pasa si se equivoca? ¿Hay regulación?"]],
+  tip:"<b>Truco:</b> priorizar también es decidir <b>escalar, pausar o terminar</b>. Si un piloto no da valor, cuesta más de lo esperado y ya no está alineado, se termina y el dinero va a otro caso. Seguirle metiendo es costo hundido.",
+  flash:[["Quick win","Caso de alto valor y baja complejidad que da resultados rápidos y gana apoyo para lo que sigue."],["Costo hundido","Dinero ya gastado que no se recupera; no es razón para seguir invirtiendo."]],
+  match:[["Alto valor y fácil de hacer","Hacerlo primero (quick win)"],["Bajo valor y difícil","Descartarlo"],["Piloto sin valor y ya no alineado","Terminarlo"],["Piloto con resultados y demanda","Escalarlo"]],
+  fill:[{text:"Para priorizar se cruzan el ___ de negocio y la ___.", ans:["valor","factibilidad"], bank:["temperatura","factibilidad","valor","latencia"]}]},
+ {id:"bbp", title:"6. Construir, comprar o asociarse (build-buy-partner)",
+  head:["Decisión","Cuándo conviene"],
+  rows:[["Construir","Es tu diferenciador, tienes talento, datos y tiempo"],
+        ["Comprar","Ya existe una solución probada, tienes poco tiempo o poco talento interno"],
+        ["Asociarse","Necesitas capacidades que no tienes, pero quieres algo a la medida"]],
+  tip:"<b>Truco:</b> AWS Marketplace sirve para evaluar soluciones de terceros. Factores de la decisión: presupuesto, tiempos, capacidades internas, propuestas de proveedores y cumplimiento regulatorio. Al cambiar de plataforma cuida la continuidad del negocio, los costos, la preparación de datos y el desempeño.",
+  flash:[["AWS Marketplace","Catálogo de software y soluciones de terceros que se compran y se pagan a través de AWS."],["Vendor lock-in","Dependencia de un proveedor que hace difícil o caro cambiar después."]],
+  match:[["Es nuestro diferenciador y tenemos el talento","Construir"],["Hay una solución probada y poco tiempo","Comprar"],["Necesitamos expertos externos y algo a la medida","Asociarse"]],
+  fill:[{text:"Con poco tiempo y una solución probada disponible conviene ___. Si es tu diferenciador y tienes talento conviene ___.", ans:["comprar","construir"], bank:["construir","esperar","comprar","asociarse"]}]},
+ {id:"valor", title:"7. Medir el valor: KPIs, línea base y ROI",
+  head:["Concepto","Qué es","Ejemplo"],
+  rows:[["Línea base","Cómo está el proceso ANTES de la IA","Hoy un ticket tarda 12 minutos"],
+        ["KPI tangible","Se traduce a dinero","Menor costo por ticket, más ingresos"],
+        ["KPI intangible","Importa, pero no es dinero directo","Satisfacción del cliente, productividad percibida"],
+        ["ROI","(Beneficio - costo) / costo","Ahorro de tiempo, menos costos, más ingresos, más productividad"],
+        ["Indicador adelantado","Señal temprana de que va a funcionar","Tasa de adopción y uso semanal de la herramienta"],
+        ["Indicador rezagado","Resultado final, se ve tarde","Ahorro anual, ingresos del año"]],
+  tip:"<b>Truco:</b> sin línea base no hay ROI. Se mide antes de lanzar. Para costos: <b>Pricing Calculator</b> para estimar, <b>Cost Explorer</b> y presupuestos para vigilar, <b>Savings Plans</b> cuando el uso ya es estable. Modelos de precio: por consumo (tokens), por instancia y por usuario (asientos).",
+  flash:[["Savings Plans","Compromiso de uso a uno o tres años a cambio de un precio más bajo."],["Precio por consumo","Pagas solo lo que usas, por ejemplo por tokens en Bedrock bajo demanda."]],
+  match:[["Satisfacción del cliente","KPI intangible"],["Costo por ticket","KPI tangible"],["Tasa de adopción en el primer mes","Indicador adelantado"],["Tiempo de resolución antes de lanzar","Línea base"],["Estimar el costo antes de construir","AWS Pricing Calculator"]],
+  fill:[{text:"Antes de lanzar se mide la ___. Para vigilar el gasto real se usa AWS ___.", ans:["línea base","Cost Explorer"], bank:["Cost Explorer","temperatura","línea base","Artifact"]}]},
+ {id:"resp", title:"8. IA responsable: principios y decisiones difíciles",
+  head:["Dimensión","Qué cuida"],
+  rows:[["Equidad (fairness)","Que el modelo no discrimine a grupos"],
+        ["Explicabilidad","Poder explicar por qué decidió algo"],
+        ["Privacidad y seguridad","Proteger los datos personales"],
+        ["Seguridad (safety)","Evitar daños y contenido dañino"],
+        ["Transparencia","Decir que es IA, para qué sirve y sus límites"],
+        ["Robustez y veracidad","Que funcione bien y no invente"],
+        ["Gobernanza y control","Que haya responsables y supervisión humana"]],
+  tip:"<b>Truco:</b> cuando el negocio choca con un principio obligatorio (por ejemplo, explicar un rechazo de crédito), gana el principio. La IA responsable se integra <b>desde la planeación</b> (governance by design), no al final. En decisiones de alto riesgo: guardrails, detección de alucinaciones, una persona que revise y criterios de escalamiento.",
+  flash:[["Governance by design","Diseñar los controles de IA responsable desde el inicio del proyecto."],["Human-in-the-loop","Una persona revisa o aprueba las decisiones de la IA en casos de riesgo."]],
+  match:[["Explicar por qué se negó un crédito","Explicabilidad"],["No discriminar por género","Equidad"],["Avisar que el usuario habla con una IA","Transparencia"],["No inventar datos de medicamentos","Veracidad"]],
+  fill:[{text:"La IA responsable se integra desde la ___. En casos de alto riesgo se agrega una persona que ___ y escala.", ans:["planeación","revisa"], bank:["revisa","planeación","auditoría","ignora"]}]},
+ {id:"gob", title:"9. Gobernanza y riesgo empresarial",
+  head:["Tema","Qué hacer"],
+  rows:[["Comité de gobierno de IA","Multifuncional: negocio, tecnología, legal, cumplimiento, seguridad y riesgo, con responsables claros"],
+        ["Clasificación por riesgo","Más controles a lo que afecta derechos u oportunidades (crédito, empleo, salud)"],
+        ["Responsabilidad compartida","AWS protege la infraestructura; tú controlas accesos, datos y uso"],
+        ["Propiedad intelectual","Revisar licencias y que el contenido generado no viole derechos"],
+        ["Contenido dañino","Guardrails para filtrar temas y contenido"],
+        ["Sesgo","Puede aparecer en datos, entrenamiento y uso; se vigila siempre (bias drift)"]],
+  tip:"<b>Truco:</b> la gobernanza no es de un solo equipo. Si una opción deja la decisión solo a TI o solo a legal, casi siempre está mal. Para casos de alto riesgo: más revisión, documentación y monitoreo.",
+  flash:[["Generative AI Security Scoping Matrix","Marco de AWS que clasifica el caso de uso según cuánto controlas el modelo, para definir responsabilidades de seguridad."],["Responsible AI Lens","Guía del Well-Architected Framework con buenas prácticas de gobierno para IA."]],
+  match:[["Crédito y contratación","Riesgo alto"],["Corrector de ortografía interno","Riesgo bajo"],["Quién responde por cada decisión de IA","Rendición de cuentas"],["El sesgo aparece después de lanzar","Bias drift"]],
+  fill:[{text:"El comité de gobierno de IA debe ser ___. Los casos que afectan derechos se clasifican como de riesgo ___.", ans:["multifuncional","alto"], bank:["alto","solo de TI","multifuncional","bajo"]}]},
+ {id:"madurez", title:"10. Madurez, cambio y escalar",
+  head:["Etapa (modelo de madurez de AWS)","Qué pasa"],
+  rows:[["Envision","Entender la IA, alinear a la dirección e identificar casos"],
+        ["Experiment","Pilotos y pruebas de concepto con casos reales"],
+        ["Launch","Pasar a producción con gobernanza y medición de valor"],
+        ["Scale","Reusar componentes, estandarizar y llevar la IA a toda la empresa"]],
+  tip:"<b>Truco:</b> muchos pilotos y ninguno en producción = etapa Experiment (\"pilot fatigue\"). Para escalar: patrocinio ejecutivo, champions, un centro de excelencia (CoE), victorias tempranas, comunicación transparente sobre los roles y capacitación. El AWS CAF revisa 6 perspectivas: Business, People, Governance, Platform, Security y Operations.",
+  flash:[["Centro de excelencia (CoE)","Equipo que comparte buenas prácticas, estándares y lo aprendido para escalar la IA en toda la empresa."],["AI champions","Personas de cada área que promueven la IA y ayudan a sus compañeros a adoptarla."],["AWS CAF","Cloud Adoption Framework: guía para planear la adopción revisando negocio, personas, gobierno, plataforma, seguridad y operaciones."]],
+  match:[["Identificar casos y alinear a la dirección","Envision"],["Pilotos y pruebas de concepto","Experiment"],["Producción con gobernanza y medición","Launch"],["Llevar la IA a toda la empresa","Scale"]],
+  fill:[{text:"Para escalar se crea un ___ que comparte lo aprendido. Contra el miedo de los empleados se usa comunicación ___.", ans:["CoE","transparente"], bank:["transparente","secreta","CoE","guardrail"]},
+        {text:"Las 6 perspectivas del AWS CAF incluyen Business, ___ , Governance, Platform, Security y ___.", ans:["People","Operations"], bank:["Operations","Pricing","People","Marketing"]}]}
+];
+// Arma los pasos: por cada tema, lección (tabla), tarjetas, unir y completar.
+const S = [];
+T.forEach(t=>{
+  S.push({t:"lesson", topic:t});
+  if(t.flash) S.push({t:"flash", topic:t, cards:t.flash});
+  if(t.match) S.push({t:"match", topic:t, pairs:t.match});
+  if(t.fill) t.fill.forEach(f=>S.push({t:"fill", topic:t, f}));
+});
+const SCORED = S.filter(s=>s.t==="match"||s.t==="fill").length;
+const KIND = {lesson:"Lección", flash:"¿Qué significa?", match:"Une las parejas", fill:"Completa la frase"};
+const KEY = "jaib-guia1";
+let st = JSON.parse(localStorage.getItem(KEY) || "null") || {started:false, done:false, idx:0, base:0, res:{}};
+let runFrom=null, stepFrom=null, tick=null, cur=null;
+
+function save(){ localStorage.setItem(KEY, JSON.stringify(st)); }
+function elapsed(){ return st.base + (runFrom ? Date.now()-runFrom : 0); }
+function fmt(ms){ const s=Math.round(ms/1000); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function startClock(){ runFrom=Date.now(); tick=setInterval(()=>{ document.getElementById("timer").textContent=fmt(elapsed()); },500); }
+function stopClock(){ st.base=elapsed(); runFrom=null; clearInterval(tick); document.getElementById("timer").textContent=fmt(st.base); save(); }
+window.addEventListener("beforeunload", ()=>{ if(runFrom){ st.base=elapsed(); save(); } });
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+const app=document.getElementById("app");
+function progress(){ document.getElementById("pb").style.width=(100*st.idx/S.length)+"%"; }
+
+function intro(){
+  app.innerHTML='<div class="card"><div class="kind">Guía paso a paso</div><h1>10 temas, una pantalla a la vez</h1>'+
+   '<p class="muted">Cada tema empieza con su tabla para leer. Luego vienen las tarjetas de "¿Qué significa?", las parejas para unir y las frases para completar. Solo las parejas y las frases cuentan para tu puntaje, y cuentan como correctas solo si las resuelves sin errores al primer intento.</p>'+
+   '<p class="muted">El timer arranca cuando das clic en Iniciar. Se guarda el tiempo total y el de cada paso.</p>'+
+   '<div class="actions"><button class="btn" id="go">Iniciar</button></div></div>';
+  document.getElementById("go").onclick=()=>{ st.started=true; save(); startClock(); show(); };
+}
+function head(s){ const pos=st.idx+1; return '<div class="kind">'+esc(s.topic.title)+' · '+KIND[s.t]+' · Paso '+pos+' de '+S.length+'</div>'; }
+function show(){
+  progress();
+  if(st.idx>=S.length) return finish();
+  const s=S[st.idx]; stepFrom=elapsed(); cur={s, err:0, resp:null};
+  if(s.t==="lesson") renderLesson(s); else if(s.t==="flash") renderFlash(s); else if(s.t==="match") renderMatch(s); else renderFill(s);
+}
+function nextBtn(container,label){
+  const a=document.createElement("div"); a.className="actions";
+  const b=document.createElement("button"); b.className="btn"; b.textContent=label||(st.idx+1>=S.length?"Ver resultados":"Continuar");
+  b.onclick=()=>{ if(!st.res[st.idx]) recordTime(); st.idx++; save(); show(); };
+  a.appendChild(b); container.appendChild(a); b.focus();
+}
+function recordTime(){ st.res[st.idx]={tipo:cur.s.t, tema:cur.s.topic.title, segundos:Math.round((elapsed()-stepFrom)/1000)}; save(); }
+function record(ok){ st.res[st.idx]={tipo:cur.s.t, tema:cur.s.topic.title, correcto:ok, errores:cur.err, segundos:Math.round((elapsed()-stepFrom)/1000), respuesta:cur.resp}; save(); }
+
+function renderLesson(s){
+  const t=s.topic, card=document.createElement("div"); card.className="card";
+  let h=head(s)+'<h2>'+esc(t.title)+'</h2><table><thead><tr>'+t.head.map(x=>'<th>'+esc(x)+'</th>').join("")+'</tr></thead><tbody>'+
+    t.rows.map(r=>'<tr>'+r.map((c,i)=>'<td>'+(i===0?'<b>'+esc(c)+'</b>':esc(c))+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
+  if(t.tip) h+='<div class="tip">'+t.tip+'</div>';
+  card.innerHTML=h; app.innerHTML=""; app.appendChild(card); nextBtn(card,"Ya lo leí, continuar");
+}
+function renderFlash(s){
+  const card=document.createElement("div"); card.className="card";
+  card.innerHTML=head(s)+'<h2>Toca cada tarjeta para ver qué significa</h2><div class="flash" id="fl"></div>';
+  app.innerHTML=""; app.appendChild(card);
+  const g=card.querySelector("#fl"); let seen=0; const total=s.cards.length;
+  s.cards.forEach(c=>{ const b=document.createElement("button"); b.className="fcard"; b.type="button"; b.setAttribute("aria-expanded","false");
+    const front='<span class="term">'+esc(c[0])+'</span><span class="hint">Toca para voltear</span>', back='<span class="term">'+esc(c[0])+'</span>'+esc(c[1]);
+    b.innerHTML=front; let opened=false;
+    b.onclick=()=>{ const f=b.classList.toggle("flip"); b.innerHTML=f?back:front; b.setAttribute("aria-expanded",f?"true":"false");
+      if(f&&!opened){ opened=true; seen++; if(seen===total) btn.disabled=false; } };
+    g.appendChild(b); });
+  nextBtn(card); const btn=card.querySelector(".actions .btn"); btn.disabled=true; btn.title="Voltea todas las tarjetas para continuar";
+}
+function feedback(ok,correct){
+  const box=document.createElement("div"); box.className="fb "+(ok?"ok":"bad");
+  box.innerHTML='<b class="t">'+(ok?"Correcto":"No del todo")+'</b>'+(ok||!correct?"":'<div>Respuesta correcta: <b>'+esc(correct)+'</b></div>');
+  return box;
+}
+function renderMatch(s){
+  const card=document.createElement("div"); card.className="card";
+  card.innerHTML=head(s)+'<h2>Une cada concepto con su pareja</h2><div class="grid2"><div class="col" id="L"></div><div class="col" id="R"></div></div>';
+  app.innerHTML=""; app.appendChild(card);
+  const L=card.querySelector("#L"), R=card.querySelector("#R"); let sel=null, left=s.pairs.length;
+  s.pairs.forEach((p,i)=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=p[0]; b.dataset.i=i; L.appendChild(b);
+    b.onclick=()=>{ if(b.classList.contains("done")) return; L.querySelectorAll("button").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); sel=b; }; });
+  shuffle(s.pairs.map((p,i)=>i)).forEach(i=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=s.pairs[i][1]; b.dataset.i=i; R.appendChild(b);
+    b.onclick=()=>{ if(b.classList.contains("done")||!sel) return;
+      if(b.dataset.i===sel.dataset.i){ [b,sel].forEach(x=>{x.classList.remove("sel");x.classList.add("done");}); sel=null; left--;
+        if(!left){ cur.resp="todas unidas"; const ok=cur.err===0; record(ok);
+          const fb=feedback(ok,""); if(!ok){ fb.querySelector("b.t").textContent="Completado con "+cur.err+" error(es)"; } card.appendChild(fb); nextBtn(card); } }
+      else { cur.err++; const x=sel; b.classList.add("wrong"); x.classList.add("wrong"); setTimeout(()=>{b.classList.remove("wrong"); x.classList.remove("wrong");},600); } }; });
+}
+function renderFill(s){
+  const f=s.f, card=document.createElement("div"); card.className="card";
+  const parts=f.text.split("___"); let h=head(s)+'<h2>Completa la frase</h2><p class="sentence">';
+  parts.forEach((p,i)=>{ h+=esc(p); if(i<parts.length-1) h+='<button class="blank" aria-label="Espacio '+(i+1)+'">&nbsp;</button>'; });
+  h+='</p><div class="bank" id="bank"></div><div class="actions"><button class="btn" id="chk" disabled>Comprobar</button></div>';
+  card.innerHTML=h; app.innerHTML=""; app.appendChild(card);
+  const fill=new Array(f.ans.length).fill(null), bank=card.querySelector("#bank"), chk=card.querySelector("#chk"), blanks=[...card.querySelectorAll(".blank")];
+  shuffle(f.bank).forEach(w=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=w; bank.appendChild(b);
+    b.onclick=()=>{ if(chk.dataset.done) return; const k=fill.indexOf(null); if(k<0) return; fill[k]=b; b.classList.add("used"); blanks[k].textContent=w; chk.disabled=fill.includes(null); }; });
+  blanks.forEach((bl,k)=>bl.onclick=()=>{ if(!fill[k]||chk.dataset.done) return; fill[k].classList.remove("used"); fill[k]=null; bl.innerHTML="&nbsp;"; chk.disabled=true; });
+  chk.onclick=()=>{ chk.dataset.done=1; const got=fill.map(b=>b.textContent); cur.resp=got.join(" | ");
+    const ok=got.every((g,i)=>g===f.ans[i]); if(!ok) cur.err=1; record(ok);
+    chk.parentNode.remove(); card.appendChild(feedback(ok,f.ans.join(" / "))); nextBtn(card); };
+}
+
+function scored(){ return Object.values(st.res).filter(r=>r.tipo==="match"||r.tipo==="fill"); }
+function summaryText(){
+  const sc=scored(), ok=sc.filter(r=>r.correcto).length;
+  const lines=Object.keys(st.res).map(Number).sort((a,b)=>a-b).map(i=>{ const r=st.res[i];
+    return (i+1)+" · "+r.tema+" · "+KIND[r.tipo]+(r.correcto===undefined?"":(r.correcto?" · correcto":" · incorrecto")+(r.errores?" · errores "+r.errores:""))+" · "+r.segundos+" s"+(r.tipo==="fill"?" · resp: "+r.respuesta:""); });
+  return "Guía 1 AIB-C01\nPuntaje: "+ok+" de "+SCORED+"\nTiempo total: "+fmt(st.base)+"\n"+lines.join("\n");
+}
+function finish(){
+  if(!st.done){ stopClock(); st.done=true; st.fin=Date.now(); save(); }
+  document.getElementById("pb").style.width="100%";
+  const sc=scored(), ok=sc.filter(r=>r.correcto).length;
+  const byTopic={}; Object.values(st.res).forEach(r=>{ const b=byTopic[r.tema]||(byTopic[r.tema]={ok:0,n:0,s:0}); b.s+=r.segundos; if(r.correcto!==undefined){ b.n++; if(r.correcto) b.ok++; } });
+  const rows=T.map(t=>{ const b=byTopic[t.title]||{ok:0,n:0,s:0}; return '<tr><td>'+esc(t.title)+'</td><td>'+(b.n?b.ok+" de "+b.n:"—")+'</td><td>'+fmt(b.s*1000)+'</td></tr>'; }).join("");
+  app.innerHTML='<div class="card"><div class="kind">Resultados</div><div class="score">'+ok+' de '+SCORED+'</div><p class="muted">Tiempo total: <b style="color:#e2e8f0">'+fmt(st.base)+'</b></p>'+
+   '<table><thead><tr><th>Tema</th><th>Ejercicios correctos</th><th>Tiempo</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+   '<div class="actions"><button class="btn sec" id="rs">Repetir guía</button><button class="btn sec" id="sv">Guardar archivo</button><button class="btn" id="cp">Copiar resultados</button></div><div id="msg" role="status"></div></div>';
+  const msg=t=>document.getElementById("msg").textContent=t;
+  document.getElementById("cp").onclick=async()=>{ try{ await navigator.clipboard.writeText(summaryText()); msg("Copiado."); }catch(e){ prompt("Copia este texto:",summaryText()); } };
+  document.getElementById("rs").onclick=()=>{ if(confirm("¿Empezar la guía de nuevo? Se borra este resultado del navegador.")){ localStorage.removeItem(KEY); location.reload(); } };
+  document.getElementById("sv").onclick=async()=>{
+    const data=JSON.stringify({examen:"guia-paso-a-paso", fecha:new Date().toISOString(), puntaje:ok, total:SCORED, tiempo_total_seg:Math.round(st.base/1000), tiempo_total:fmt(st.base), pasos:st.res},null,2);
+    try{ if(window.showSaveFilePicker){ const h=await window.showSaveFilePicker({suggestedName:"respuestas-guia-paso-a-paso.json",types:[{description:"JSON",accept:{"application/json":[".json"]}}]}); const w=await h.createWritable(); await w.write(data); await w.close(); }
+      else { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([data],{type:"application/json"})); a.download="respuestas-guia-paso-a-paso.json"; a.click(); }
+      msg("Archivo guardado."); }catch(e){ if(e.name!=="AbortError") msg("No se pudo guardar: usa Copiar resultados."); }
+  };
+}
+document.getElementById("restart").onclick=()=>{ if(confirm("¿Reiniciar la guía desde el principio? Se borra tu avance y el tiempo.")){ clearInterval(tick); runFrom=null; localStorage.removeItem(KEY); location.reload(); } };
+window.addEventListener("beforeunload",()=>{});
+document.getElementById("timer").textContent=fmt(st.base);
+if(!st.started) intro(); else if(st.done) finish(); else { startClock(); show(); }
+</script>
+</body>
+</html>

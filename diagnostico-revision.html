@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<script src="auth.js"></script>
+<script src="sync.js?v=1.0.0"></script><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi diagnóstico · AIB-C01</title>
+<style>
+:root{--bg:#0f172a;--card:#111c33;--ink:#e2e8f0;--muted:#94a3b8;--accent:#ff9900;--ok:#22c55e;--bad:#ef4444;--line:#1e2a44}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+main{max-width:900px;margin:0 auto;padding:24px 16px 60px}h1{font-size:26px;color:var(--accent);margin:0 0 6px}.sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+table.sum{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0 16px}table.sum th,table.sum td{border:1px solid var(--line);padding:7px 9px;text-align:left}table.sum th{background:var(--card);color:var(--accent)}
+.bar{position:sticky;top:0;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;z-index:2}
+.bar button{background:#1e2a44;color:var(--ink);border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:13.5px}.bar button.on{background:var(--accent);color:#111}
+button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.q{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--ok);border-radius:12px;padding:16px 18px;margin:14px 0}.q.bad{border-left-color:var(--bad)}
+.tag{font-size:12px;font-weight:700;letter-spacing:.3px}.q .tag{color:var(--ok)}.q.bad .tag{color:#fca5a5}
+.stem{margin:6px 0 10px;font-size:15.5px}
+.o{padding:8px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:14.5px}
+.o.right{border-color:var(--ok);background:#10291c}.o.wrong{border-color:var(--bad);background:#2a1215}
+.o .lbl{float:right;font-size:12px;font-weight:700}.o.right .lbl{color:var(--ok)}.o.wrong .lbl{color:#fca5a5}
+.exp{margin-top:10px;padding:10px 12px;border-radius:8px;background:#0d1629;border-left:3px solid var(--accent);font-size:14.5px}.exp b{color:var(--accent)}
+.meta{color:var(--muted);font-size:12.5px;margin-top:8px}
+table.ord{width:100%;border-collapse:collapse;font-size:14px}table.ord td,table.ord th{border:1px solid var(--line);padding:6px 8px;text-align:left}table.ord th{color:var(--accent);background:#0d1629}
+td.okc{color:#9be7b4}td.badc{color:#fca5a5}
+@media(max-width:560px){main{padding:16px 12px 48px}.o .lbl{float:none;display:block;margin-bottom:2px}table.sum th,table.sum td{padding:6px;font-size:13px}.q{padding:14px 13px}.stem{font-size:15px}h1{font-size:22px}}
+</style></head><body><main>
+<p><a href="index.html" style="color:#ff9900;font-weight:700">Inicio</a></p><h1>Mi diagnóstico</h1>
+<p class="sub" id="when"></p><p class="sub">La correcta está en verde y, si fallaste, la tuya en rojo. Al terminar de revisar, regresa al Inicio para ver tu ruta ajustada. Lee la explicación de cada error: es lo que más te sirve para fijarlo.</p>
+<div id="sum"></div>
+<div class="bar" role="toolbar" aria-label="Filtros">
+ <button type="button" data-f="bad" class="on">Solo mis errores</button><button type="button" data-f="all">Todas</button>
+ <button type="button" data-f="D1">D1</button><button type="button" data-f="D2">D2</button><button type="button" data-f="D3">D3</button><button type="button" data-f="D4">D4</button>
+</div>
+<div id="list"></div>
+</main><script>
+const Q = [
+ {"d": "D1", "t": "mc", "s": "Un centro de atención quiere que sus agentes dejen de leer transcripciones largas de llamadas de queja. Quiere un resumen de cada llamada y no tiene presupuesto para construir modelos propios. ¿Qué tipo de solución de IA es el mejor primer paso?", "o": ["Un motor de recomendaciones entrenado con el historial de compras", "Un modelo de IA generativa que resuma el texto", "Un modelo de visión por computadora para clasificar documentos", "Un modelo de regresión que pronostique el volumen de llamadas"]},
+ {"d": "D1", "t": "mc", "s": "Un proceso de aprobación de reembolsos sigue reglas fijas y documentadas: si el monto es menor a 500 pesos y el cliente tiene menos de dos reembolsos en el año, se aprueba. ¿Qué recomienda un estratega?", "o": ["Un foundation model ajustado con fine-tuning", "Un agente de IA generativa que decida cada caso", "Un modelo de machine learning entrenado con reembolsos pasados", "Automatización basada en reglas, porque la lógica es fija y conocida"]},
+ {"d": "D1", "t": "mc", "s": "Un asistente interno de una aseguradora contesta con datos de pólizas que ya no están vigentes. Se necesitan respuestas basadas en los documentos más recientes, con el menor costo y esfuerzo. ¿Qué enfoque recomienda?", "o": ["Hacer fine-tuning cada vez que cambie una póliza", "Entrenar un foundation model propio desde cero", "RAG con una base de conocimiento de los documentos internos", "Cambiar a un modelo con más parámetros"]},
+ {"d": "D1", "t": "mc", "s": "Varios equipos usan por su cuenta chatbots públicos con datos de clientes. La dirección quiere reducir el riesgo sin frenar la productividad. ¿Cuál es el primer paso más efectivo?", "o": ["Prohibir cualquier uso de IA generativa en la empresa", "Esperar a que exista una regulación nacional", "Dejar que cada equipo decida qué herramienta usar", "Publicar una clasificación transparente de herramientas de IA (aprobadas, bloqueadas y en evaluación) y ofrecer opciones aprobadas"]},
+ {"d": "D1", "t": "multi", "n": 2, "s": "¿Qué DOS características distinguen a un agente de IA de un chatbot de preguntas y respuestas?", "o": ["Solo funciona con datos estructurados", "Puede usar herramientas, como llamar APIs de la empresa", "No necesita ningún modelo de lenguaje", "Puede planear y ejecutar tareas de varios pasos con cierta autonomía", "Siempre da la misma respuesta a la misma pregunta"]},
+ {"d": "D2", "t": "mc", "s": "Una empresa quiere demostrar en seis meses cuánto le ahorró un asistente de IA para su mesa de ayuda. ¿Qué debe hacer ANTES de lanzarlo?", "o": ["Firmar un contrato de tres años con el proveedor", "Medir la línea base actual: tiempo de resolución, costo por ticket y satisfacción", "Elegir el modelo más grande disponible", "Capacitar a todos los empleados de la empresa"]},
+ {"d": "D2", "t": "mc", "s": "Una empresa necesita una solución de IA para clasificar facturas en tres meses. Ya existe en AWS Marketplace un producto que lo hace, y su equipo interno no tiene experiencia en ML. ¿Qué decisión recomienda un estratega?", "o": ["Construir un modelo propio desde cero con el equipo interno", "Esperar a que el equipo aprenda ML para construirlo", "Pedir a cada área que construya su propia versión", "Comprar o contratar la solución existente y validarla con datos propios"]},
+ {"d": "D2", "t": "mc", "s": "Un piloto de IA lleva nueve meses. No cumplió sus metas, el costo creció y ya no está alineado con la estrategia porque la empresa cambió de prioridad. ¿Qué decisión es la más adecuada?", "o": ["Mantenerlo igual otro año más", "Terminar la iniciativa y reasignar el presupuesto a casos de mayor valor", "Escalarlo a toda la empresa", "Duplicar el presupuesto para tratar de rescatarlo"]},
+ {"d": "D2", "t": "multi", "n": 2, "s": "Una empresa arma el caso de negocio de un asistente de IA para su área de ventas. ¿Qué DOS beneficios son intangibles?", "o": ["Aumento de ingresos por venta cruzada", "Mayor satisfacción del cliente", "Menos horas extra pagadas", "Reducción del costo por llamada", "Mayor productividad percibida de los empleados"]},
+ {"d": "D2", "t": "mc", "s": "Un director de finanzas pide controlar el gasto de un chatbot en Amazon Bedrock que tiene uso variable. ¿Cuál es el primer paso de control de costos?", "o": ["Bajar la temperatura del modelo", "Comprar la mayor capacidad reservada posible desde el primer día", "Prohibir el uso del chatbot en horario laboral", "Estimar el costo con AWS Pricing Calculator y vigilar el gasto real con AWS Cost Explorer y alertas de presupuesto"]},
+ {"d": "D3", "t": "mc", "s": "Un banco quiere usar IA para aprobar créditos. El área comercial pide máxima precisión aunque el modelo no se pueda explicar. Cumplimiento exige explicar cada rechazo al cliente. ¿Qué decisión equilibra mejor el negocio y la IA responsable?", "o": ["Dejar que el modelo decida sin revisión", "Cancelar el proyecto de IA", "Elegir un enfoque que se pueda explicar aunque sea un poco menos preciso, porque explicar los rechazos es obligatorio", "Usar el modelo más preciso y no explicar los rechazos"]},
+ {"d": "D3", "t": "mc", "s": "¿En qué momento de un proyecto de IA se deben integrar las prácticas de IA responsable?", "o": ["Al final, antes de apagar el sistema", "Solo cuando lo pide una auditoría", "Después del lanzamiento, si un cliente se queja", "Desde la planeación, como parte del diseño (governance by design)"]},
+ {"d": "D3", "t": "mc", "s": "Una empresa va a crear su comité de gobierno de IA. ¿Qué composición es la más adecuada?", "o": ["Un grupo multifuncional: negocio, tecnología, legal, cumplimiento, seguridad y riesgo, con responsables claros", "Solo el director de tecnología", "Solo el área legal", "Solo el equipo de ciencia de datos"]},
+ {"d": "D3", "t": "mc", "s": "Un asistente de IA para pacientes a veces inventa datos sobre medicamentos. ¿Qué salvaguarda es la más adecuada?", "o": ["Subir la temperatura para que conteste más rápido", "Dejar que el modelo aprenda solo de sus errores", "Quitar las advertencias para que la experiencia sea más fluida", "Supervisión humana y criterios de escalamiento para respuestas de alto riesgo, con guardrails y detección de alucinaciones"]},
+ {"d": "D3", "t": "multi", "n": 2, "s": "Una empresa clasifica sus casos de uso de IA por riesgo para decidir cuánta gobernanza aplica a cada uno. ¿Qué DOS casos deberían quedar en la categoría de riesgo alto?", "o": ["Un sistema que filtra candidatos en un proceso de contratación", "Un buscador de documentos públicos del sitio web", "Un corrector de ortografía para correos", "Un modelo que decide si se aprueba un crédito", "Un asistente que sugiere títulos para publicaciones internas"]},
+ {"d": "D4", "t": "mc", "s": "Una empresa con muchos pilotos de IA y ninguno en producción quiere saber dónde está y qué sigue. ¿Qué herramienta le ayuda?", "o": ["Una campaña de comunicación interna", "Un contrato con un nuevo proveedor de modelos", "Un modelo de madurez de IA, como el de AWS (Envision, Experiment, Launch, Scale)", "Comprar más capacidad de cómputo"]},
+ {"d": "D4", "t": "mc", "s": "Los empleados de operaciones temen que la IA elimine sus puestos y están frenando la adopción. ¿Qué intervención de liderazgo es la más efectiva?", "o": ["Obligar a usar la herramienta sin explicación", "Ocultar el proyecto hasta que esté terminado", "Comunicar con transparencia el plan, los tiempos y cómo cambiarán los roles, con capacitación para las nuevas tareas", "Contratar a otro equipo para reemplazarlos"]},
+ {"d": "D4", "t": "mc", "s": "Un piloto de IA funcionó bien en una sucursal y la empresa quiere llevarlo a 200 sucursales. ¿Cuál es el enfoque más recomendable?", "o": ["Lanzarlo en las 200 sucursales el mismo día", "Esperar a que el modelo sea perfecto antes de escalar", "Escalar por etapas, con victorias tempranas, métricas de éxito y un centro de excelencia (CoE) que comparta lo aprendido", "Dejar que cada sucursal lo configure por su cuenta"]},
+ {"d": "D4", "t": "mc", "s": "Una empresa quiere un modelo de churn, pero los datos de clientes viven en cinco sistemas que no se comunican y cada uno usa un ID distinto. ¿Qué debe atender primero?", "o": ["La preparación de datos: integrar los silos, definir dueños de datos y mejorar la calidad", "Contratar más científicos de datos", "Lanzar la campaña de retención sin modelo", "Elegir el modelo más avanzado del mercado"]},
+ {"d": "D4", "t": "multi", "n": 2, "s": "¿Qué DOS acciones aceleran la alfabetización en IA en toda la empresa?", "o": ["Permitir que solo el equipo de TI use la IA", "Capacitación en IA responsable para todos los empleados", "Programas de prueba de concepto (POC) y hackatones con casos reales", "Contratar solo consultores externos para todo", "Prohibir los experimentos hasta tener una política perfecta"]}
+];
+const KEYA = {"1": "B", "2": "D", "3": "C", "4": "D", "5": "BD", "6": "B", "7": "D", "8": "B", "9": "BE", "10": "D", "11": "C", "12": "D", "13": "A", "14": "D", "15": "AD", "16": "C", "17": "C", "18": "C", "19": "A", "20": "BC"};
+const ST = JSON.parse(localStorage.getItem("jaib-diagnostico")||"null");
+const MINE = (ST&&ST.a)||{};
+const SEC = (ST&&ST.sec)||{};
+const EXP = {"1": "Resumir texto libre es una tarea típica de IA generativa y se resuelve con un modelo ya existente, sin construir nada. Recomendaciones, visión y regresión resuelven otros problemas.", "2": "Si las reglas son claras, estables y se pueden escribir, la automatización con reglas es más barata, explicable y predecible. La IA tiene sentido cuando el patrón es difícil de escribir como reglas.", "3": "RAG agrega los documentos vigentes en el momento de la consulta, sin reentrenar. Entrenar desde cero o con fine-tuning repetido cuesta mucho más, y un modelo más grande no conoce tus documentos.", "4": "Prohibir empuja a la gente a usar herramientas a escondidas (shadow AI). AWS recomienda dar herramientas aprobadas y clasificar con claridad cuáles se pueden usar.", "5": "Un agente planea, actúa con autonomía y usa herramientas (APIs, bases de datos, otros agentes). Un chatbot solo conversa y responde.", "6": "Sin una línea base no hay contra qué comparar. Las métricas de antes del lanzamiento son las que permiten calcular el ROI después.", "7": "Con poco tiempo, sin capacidades internas y con una solución probada disponible, comprar o asociarse es lo sensato. Construir conviene cuando la solución es tu diferenciador y tienes el talento.", "8": "Priorizar también significa pausar o terminar lo que no da valor ni está alineado. Seguir invirtiendo en algo así es costo hundido.", "9": "Satisfacción y productividad percibida son intangibles: importan, pero no se traducen directo a dinero. Costo, ingresos y horas extra son tangibles.", "10": "Planear con Pricing Calculator y vigilar con Cost Explorer y presupuestos es la base. La capacidad reservada conviene cuando el uso ya es estable; la temperatura no cambia el costo.", "11": "Cuando hay una obligación de explicar, la explicabilidad no es negociable. Se acepta perder un poco de precisión para cumplir.", "12": "La IA responsable cuesta menos y funciona mejor si se diseña desde el inicio. Agregarla al final obliga a rehacer.", "13": "La gobernanza de IA necesita miradas distintas y responsabilidad clara. Un solo equipo no ve todos los riesgos.", "14": "En decisiones de alto impacto, como la salud, se necesitan guardrails, detección de alucinaciones y una persona que revise y escale los casos de riesgo.", "15": "Los casos que afectan derechos o el acceso a oportunidades (crédito, empleo) son de riesgo alto y necesitan más controles. Los de productividad interna son de riesgo bajo.", "16": "Un modelo de madurez dice en qué etapa estás y qué capacidades faltan para pasar a la siguiente. Muchos pilotos sin producción es la etapa Experiment.", "17": "El miedo se combate con información clara y con un camino para la gente: qué cambia, cuándo y cómo se van a preparar.", "18": "Escalar de forma iterativa, con un CoE y métricas claras, reduce el riesgo y mantiene la continuidad del negocio.", "19": "Sin datos accesibles y de calidad no hay modelo que funcione. Los silos de datos son una barrera típica de preparación.", "20": "Aprender haciendo (POC, hackatones) y capacitar en IA responsable crea capacidades internas. Encerrar la IA en un solo equipo frena la adopción."};
+const DN = {D1:"Fundamentos y alfabetización en IA",D2:"Estrategia y valor de negocio",D3:"Gobernanza e IA responsable",D4:"Preparación, liderazgo y transformación"};
+const L="ABCDE";
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+if(!ST||!ST.done){ document.querySelector("main").innerHTML='<p><a href="index.html" style="color:#ff9900;font-weight:700">Inicio</a></p><h1>Todavía no terminas el diagnóstico</h1><p class="sub">Cuando lo termines, aquí verás tu calificación y las explicaciones.</p><p><a href="diagnostico.html" style="color:#ff9900;font-weight:700">Ir al diagnóstico</a></p>'; throw new Error("sin simulacro"); }
+const ok = Q.map((q,i)=>(MINE[i+1]||"")===KEYA[i+1]);
+// resumen
+const dom={}; Q.forEach((q,i)=>{const d=dom[q.d]||(dom[q.d]={ok:0,n:0}); d.n++; if(ok[i]) d.ok++;});
+const tot=ok.filter(Boolean).length;
+document.getElementById("when").innerHTML='Tiempo usado: <b>'+(function(s){s=Math.round(s/1000);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")})(ST.base||0)+'</b> de 30:00. <button type="button" id="again" style="margin-left:10px;background:#1e2a44;color:#e2e8f0;border:0;border-radius:8px;padding:6px 10px;cursor:pointer;font-weight:700">Repetir diagnóstico</button>';
+document.getElementById("again").onclick=function(){ if(confirm("¿Repetir el diagnóstico desde cero? Se borra este resultado de este navegador. Si quieres conservarlo, primero descarga tu respaldo en el Inicio.")){ localStorage.removeItem("jaib-diagnostico"); location.href="diagnostico.html"; } };
+try{ var r=JSON.parse(localStorage.getItem("jaib-scores")||"{}"); r.diagnostico={ok:ok.filter(Boolean).length,total:Q.length,fecha:new Date().toISOString(),base:ST.base,dom:(function(){var o={};Object.keys(dom).forEach(function(k){o[k]=[dom[k].ok,dom[k].n];});return o;}())}; localStorage.setItem("jaib-scores",JSON.stringify(r)); }catch(e){}
+document.getElementById("sum").innerHTML='<table class="sum"><thead><tr><th>Dominio</th><th>Correctas</th><th>%</th></tr></thead><tbody>'+
+ Object.keys(dom).map(k=>'<tr><td>'+k+' · '+DN[k]+'</td><td>'+dom[k].ok+' de '+dom[k].n+'</td><td>'+Math.round(100*dom[k].ok/dom[k].n)+'%</td></tr>').join("")+
+ '<tr><td><b>Total</b></td><td><b>'+tot+' de '+Q.length+'</b></td><td><b>'+Math.round(100*tot/Q.length)+'%</b></td></tr></tbody></table>';
+function card(q,i){
+ const n=i+1, mine=MINE[n]||"", right=KEYA[n], good=ok[i];
+ let h='<section class="q'+(good?"":" bad")+'"><div class="tag">Pregunta '+n+' · '+q.d+' · '+(good?"Correcta":"Incorrecta")+'</div><p class="stem">'+esc(q.s)+'</p>';
+ if(q.t==="mc"||q.t==="multi"){
+  q.o.forEach((o,j)=>{const isR=right.includes(L[j]), isM=mine.includes(L[j]); let c="o"+(isR?" right":(isM?" wrong":""));
+   let lbl=isR&&isM?"Correcta · tu respuesta":isR?"Correcta":isM?"Tu respuesta":"";
+   h+='<div class="'+c+'">'+(lbl?'<span class="lbl">'+lbl+'</span>':'')+'<b>'+L[j]+')</b> '+esc(o)+'</div>';});
+ } else if(q.t==="order"){
+  const mp=mine.split("-");
+  h+='<table class="ord"><thead><tr><th>Orden correcto</th><th>Paso</th><th>Tu posición</th></tr></thead><tbody>'+
+   q.steps.map((s,k)=>'<tr><td>'+(k+1)+'</td><td>'+esc(s)+'</td><td class="'+(mp[k]==String(k+1)?"okc":"badc")+'">'+(mp[k]||"-")+'</td></tr>').join("")+'</tbody></table>';
+ } else {
+  const mp=mine.split("-");
+  h+='<table class="ord"><thead><tr><th>Necesidad</th><th>Correcto</th><th>Tu respuesta</th></tr></thead><tbody>'+
+   q.pairs.map((p,k)=>{const m=+mp[k]; const txt=m?q.pairs[m-1][1]:"-"; return '<tr><td>'+esc(p[0])+'</td><td>'+esc(p[1])+'</td><td class="'+(m===k+1?"okc":"badc")+'">'+esc(txt)+'</td></tr>';}).join("")+'</tbody></table>';
+ }
+ h+='<div class="exp"><b>Por qué:</b> '+esc(EXP[n])+'</div><div class="meta">Tardaste '+(SEC[n]||0)+' s en esta pregunta.</div></section>';
+ return h;
+}
+function render(f){
+ document.getElementById("list").innerHTML=Q.map((q,i)=>({q,i})).filter(({q,i})=>f==="all"?true:f==="bad"?!ok[i]:q.d===f).map(({q,i})=>card(q,i)).join("");
+}
+document.querySelectorAll(".bar button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".bar button").forEach(x=>x.classList.remove("on"));b.classList.add("on");render(b.dataset.f);});
+render("bad");
+</script></body></html>

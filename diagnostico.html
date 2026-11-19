@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<script src="auth.js"></script>
+<script src="sync.js?v=1.0.0"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico · AIB-C01 · 20 preguntas</title>
+<style>
+  :root { --bg:#0f172a; --card:#111c33; --ink:#e2e8f0; --muted:#94a3b8; --accent:#ff9900; --ok:#22c55e; --bad:#ef4444; --line:#1e2a44; --flag:#eab308; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+  .wrap { padding-top:44px !important; max-width:860px; margin:0 auto; padding:16px 16px 60px; }
+  header { display:flex; align-items:center; gap:14px; padding:10px 0 14px; border-bottom:1px solid var(--line); margin-bottom:16px; flex-wrap:wrap; }
+  .ttl { font-weight:800; flex:1; }
+  .timer { font-variant-numeric:tabular-nums; font-weight:800; font-size:18px; padding:6px 12px; border-radius:8px; background:#1e2a44; }
+  .timer.low { background:#7f1d1d; }
+  .ico { display:inline-block; width:1em; height:1em; vertical-align:-0.125em; margin-right:5px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; }
+  .kind { font-size:12px; color:var(--accent); font-weight:700; letter-spacing:.4px; }
+  h1 { font-size:24px; margin:0 0 8px; }
+  .stem { font-size:16px; margin:8px 0 14px; }
+  .note { font-size:13px; color:var(--accent); margin:-6px 0 12px; }
+  p.muted, li.muted { color:var(--muted); }
+  label.opt { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--line); border-radius:9px; margin-bottom:8px; cursor:pointer; }
+  label.opt:hover { border-color:#334366; }
+  label.opt.sel { border-color:var(--accent); background:#1a2540; }
+  label.opt input { margin-top:4px; accent-color:var(--accent); }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); }
+  select { background:#0d1629; color:var(--ink); border:1px solid #334366; border-radius:8px; padding:8px; font-size:14px; width:100%; }
+  .nav { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; align-items:center; }
+  .sp { flex:1; }
+  .btn { background:var(--accent); color:#111; border:0; border-radius:9px; padding:10px 16px; font-weight:800; font-size:14px; cursor:pointer; }
+  .btn.sec { background:#1e2a44; color:var(--ink); }
+  .btn.flag.on { background:var(--flag); color:#111; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+  .pal { display:grid; grid-template-columns:repeat(auto-fill,minmax(42px,1fr)); gap:6px; margin-top:12px; }
+  .pal button { background:#0d1629; color:var(--muted); border:1px solid var(--line); border-radius:7px; padding:7px 0; cursor:pointer; font-weight:700; font-size:13px; }
+  .pal button.ans { background:#1a2540; color:var(--ink); border-color:#334366; }
+  .pal button.flg { border-color:var(--flag); color:var(--flag); }
+  .pal button.cur { outline:2px solid var(--accent); }
+  .legend { font-size:12.5px; color:var(--muted); margin-top:8px; }
+  details { margin-top:16px; }
+  summary { cursor:pointer; color:var(--accent); font-weight:700; font-size:14px; }
+  #msg { color:var(--ok); font-size:13px; margin-top:8px; min-height:1em; }
+  table { width:100%; border-collapse:collapse; font-size:14px; margin-top:12px; }
+  th,td { border:1px solid var(--line); padding:7px 9px; text-align:left; }
+  th { background:#0d1629; color:var(--accent); }
+</style>
+</head>
+<body>
+<a href="index.html#material" style="position:fixed;top:10px;left:12px;z-index:50;background:#1e2a44;color:#e2e8f0;text-decoration:none;font:700 13px -apple-system,BlinkMacSystemFont,sans-serif;padding:7px 11px;border-radius:8px">Inicio</a>
+
+<div class="wrap">
+  <header>
+    <div class="ttl">Diagnóstico · AIB-C01</div>
+    <div class="timer" id="timer" aria-label="Tiempo restante">30:00</div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+const Q = [
+ {"d": "D1", "t": "mc", "s": "Un centro de atención quiere que sus agentes dejen de leer transcripciones largas de llamadas de queja. Quiere un resumen de cada llamada y no tiene presupuesto para construir modelos propios. ¿Qué tipo de solución de IA es el mejor primer paso?", "o": ["Un motor de recomendaciones entrenado con el historial de compras", "Un modelo de IA generativa que resuma el texto", "Un modelo de visión por computadora para clasificar documentos", "Un modelo de regresión que pronostique el volumen de llamadas"]},
+ {"d": "D1", "t": "mc", "s": "Un proceso de aprobación de reembolsos sigue reglas fijas y documentadas: si el monto es menor a 500 pesos y el cliente tiene menos de dos reembolsos en el año, se aprueba. ¿Qué recomienda un estratega?", "o": ["Un foundation model ajustado con fine-tuning", "Un agente de IA generativa que decida cada caso", "Un modelo de machine learning entrenado con reembolsos pasados", "Automatización basada en reglas, porque la lógica es fija y conocida"]},
+ {"d": "D1", "t": "mc", "s": "Un asistente interno de una aseguradora contesta con datos de pólizas que ya no están vigentes. Se necesitan respuestas basadas en los documentos más recientes, con el menor costo y esfuerzo. ¿Qué enfoque recomienda?", "o": ["Hacer fine-tuning cada vez que cambie una póliza", "Entrenar un foundation model propio desde cero", "RAG con una base de conocimiento de los documentos internos", "Cambiar a un modelo con más parámetros"]},
+ {"d": "D1", "t": "mc", "s": "Varios equipos usan por su cuenta chatbots públicos con datos de clientes. La dirección quiere reducir el riesgo sin frenar la productividad. ¿Cuál es el primer paso más efectivo?", "o": ["Prohibir cualquier uso de IA generativa en la empresa", "Esperar a que exista una regulación nacional", "Dejar que cada equipo decida qué herramienta usar", "Publicar una clasificación transparente de herramientas de IA (aprobadas, bloqueadas y en evaluación) y ofrecer opciones aprobadas"]},
+ {"d": "D1", "t": "multi", "n": 2, "s": "¿Qué DOS características distinguen a un agente de IA de un chatbot de preguntas y respuestas?", "o": ["Solo funciona con datos estructurados", "Puede usar herramientas, como llamar APIs de la empresa", "No necesita ningún modelo de lenguaje", "Puede planear y ejecutar tareas de varios pasos con cierta autonomía", "Siempre da la misma respuesta a la misma pregunta"]},
+ {"d": "D2", "t": "mc", "s": "Una empresa quiere demostrar en seis meses cuánto le ahorró un asistente de IA para su mesa de ayuda. ¿Qué debe hacer ANTES de lanzarlo?", "o": ["Firmar un contrato de tres años con el proveedor", "Medir la línea base actual: tiempo de resolución, costo por ticket y satisfacción", "Elegir el modelo más grande disponible", "Capacitar a todos los empleados de la empresa"]},
+ {"d": "D2", "t": "mc", "s": "Una empresa necesita una solución de IA para clasificar facturas en tres meses. Ya existe en AWS Marketplace un producto que lo hace, y su equipo interno no tiene experiencia en ML. ¿Qué decisión recomienda un estratega?", "o": ["Construir un modelo propio desde cero con el equipo interno", "Esperar a que el equipo aprenda ML para construirlo", "Pedir a cada área que construya su propia versión", "Comprar o contratar la solución existente y validarla con datos propios"]},
+ {"d": "D2", "t": "mc", "s": "Un piloto de IA lleva nueve meses. No cumplió sus metas, el costo creció y ya no está alineado con la estrategia porque la empresa cambió de prioridad. ¿Qué decisión es la más adecuada?", "o": ["Mantenerlo igual otro año más", "Terminar la iniciativa y reasignar el presupuesto a casos de mayor valor", "Escalarlo a toda la empresa", "Duplicar el presupuesto para tratar de rescatarlo"]},
+ {"d": "D2", "t": "multi", "n": 2, "s": "Una empresa arma el caso de negocio de un asistente de IA para su área de ventas. ¿Qué DOS beneficios son intangibles?", "o": ["Aumento de ingresos por venta cruzada", "Mayor satisfacción del cliente", "Menos horas extra pagadas", "Reducción del costo por llamada", "Mayor productividad percibida de los empleados"]},
+ {"d": "D2", "t": "mc", "s": "Un director de finanzas pide controlar el gasto de un chatbot en Amazon Bedrock que tiene uso variable. ¿Cuál es el primer paso de control de costos?", "o": ["Bajar la temperatura del modelo", "Comprar la mayor capacidad reservada posible desde el primer día", "Prohibir el uso del chatbot en horario laboral", "Estimar el costo con AWS Pricing Calculator y vigilar el gasto real con AWS Cost Explorer y alertas de presupuesto"]},
+ {"d": "D3", "t": "mc", "s": "Un banco quiere usar IA para aprobar créditos. El área comercial pide máxima precisión aunque el modelo no se pueda explicar. Cumplimiento exige explicar cada rechazo al cliente. ¿Qué decisión equilibra mejor el negocio y la IA responsable?", "o": ["Dejar que el modelo decida sin revisión", "Cancelar el proyecto de IA", "Elegir un enfoque que se pueda explicar aunque sea un poco menos preciso, porque explicar los rechazos es obligatorio", "Usar el modelo más preciso y no explicar los rechazos"]},
+ {"d": "D3", "t": "mc", "s": "¿En qué momento de un proyecto de IA se deben integrar las prácticas de IA responsable?", "o": ["Al final, antes de apagar el sistema", "Solo cuando lo pide una auditoría", "Después del lanzamiento, si un cliente se queja", "Desde la planeación, como parte del diseño (governance by design)"]},
+ {"d": "D3", "t": "mc", "s": "Una empresa va a crear su comité de gobierno de IA. ¿Qué composición es la más adecuada?", "o": ["Un grupo multifuncional: negocio, tecnología, legal, cumplimiento, seguridad y riesgo, con responsables claros", "Solo el director de tecnología", "Solo el área legal", "Solo el equipo de ciencia de datos"]},
+ {"d": "D3", "t": "mc", "s": "Un asistente de IA para pacientes a veces inventa datos sobre medicamentos. ¿Qué salvaguarda es la más adecuada?", "o": ["Subir la temperatura para que conteste más rápido", "Dejar que el modelo aprenda solo de sus errores", "Quitar las advertencias para que la experiencia sea más fluida", "Supervisión humana y criterios de escalamiento para respuestas de alto riesgo, con guardrails y detección de alucinaciones"]},
+ {"d": "D3", "t": "multi", "n": 2, "s": "Una empresa clasifica sus casos de uso de IA por riesgo para decidir cuánta gobernanza aplica a cada uno. ¿Qué DOS casos deberían quedar en la categoría de riesgo alto?", "o": ["Un sistema que filtra candidatos en un proceso de contratación", "Un buscador de documentos públicos del sitio web", "Un corrector de ortografía para correos", "Un modelo que decide si se aprueba un crédito", "Un asistente que sugiere títulos para publicaciones internas"]},
+ {"d": "D4", "t": "mc", "s": "Una empresa con muchos pilotos de IA y ninguno en producción quiere saber dónde está y qué sigue. ¿Qué herramienta le ayuda?", "o": ["Una campaña de comunicación interna", "Un contrato con un nuevo proveedor de modelos", "Un modelo de madurez de IA, como el de AWS (Envision, Experiment, Launch, Scale)", "Comprar más capacidad de cómputo"]},
+ {"d": "D4", "t": "mc", "s": "Los empleados de operaciones temen que la IA elimine sus puestos y están frenando la adopción. ¿Qué intervención de liderazgo es la más efectiva?", "o": ["Obligar a usar la herramienta sin explicación", "Ocultar el proyecto hasta que esté terminado", "Comunicar con transparencia el plan, los tiempos y cómo cambiarán los roles, con capacitación para las nuevas tareas", "Contratar a otro equipo para reemplazarlos"]},
+ {"d": "D4", "t": "mc", "s": "Un piloto de IA funcionó bien en una sucursal y la empresa quiere llevarlo a 200 sucursales. ¿Cuál es el enfoque más recomendable?", "o": ["Lanzarlo en las 200 sucursales el mismo día", "Esperar a que el modelo sea perfecto antes de escalar", "Escalar por etapas, con victorias tempranas, métricas de éxito y un centro de excelencia (CoE) que comparta lo aprendido", "Dejar que cada sucursal lo configure por su cuenta"]},
+ {"d": "D4", "t": "mc", "s": "Una empresa quiere un modelo de churn, pero los datos de clientes viven en cinco sistemas que no se comunican y cada uno usa un ID distinto. ¿Qué debe atender primero?", "o": ["La preparación de datos: integrar los silos, definir dueños de datos y mejorar la calidad", "Contratar más científicos de datos", "Lanzar la campaña de retención sin modelo", "Elegir el modelo más avanzado del mercado"]},
+ {"d": "D4", "t": "multi", "n": 2, "s": "¿Qué DOS acciones aceleran la alfabetización en IA en toda la empresa?", "o": ["Permitir que solo el equipo de TI use la IA", "Capacitación en IA responsable para todos los empleados", "Programas de prueba de concepto (POC) y hackatones con casos reales", "Contratar solo consultores externos para todo", "Prohibir los experimentos hasta tener una política perfecta"]}
+];
+const LIMIT = 30*60*1000;
+const KEY = "jaib-diagnostico";
+const L = "ABCDE";
+let st = JSON.parse(localStorage.getItem(KEY) || "null") || {started:false, done:false, idx:0, base:0, a:{}, f:{}, sec:{}, perm:{}};
+let runFrom=null, qFrom=null, tick=null;
+
+// Orden aleatorio fijo por examen para los elementos de ordenar y emparejar
+Q.forEach((q,i)=>{ if((q.t==="order"||q.t==="match") && !st.perm[i]){ const n=(q.steps||q.pairs).length; st.perm[i]=shuffle([...Array(n).keys()]); } });
+
+function save(){ localStorage.setItem(KEY, JSON.stringify(st)); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+function elapsed(){ return st.base + (runFrom ? Date.now()-runFrom : 0); }
+function fmt(ms){ const s=Math.max(0,Math.round(ms/1000)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function addQTime(){ if(qFrom!==null){ const k=st.idx+1; st.sec[k]=(st.sec[k]||0)+Math.round((elapsed()-qFrom)/1000); qFrom=elapsed(); } }
+function updTimer(){ const left=LIMIT-elapsed(); const t=document.getElementById("timer"); t.textContent=fmt(left); t.classList.toggle("low", left<10*60*1000); if(left<=0 && !st.done){ finishExam(true); } }
+function startClock(){ runFrom=Date.now(); qFrom=elapsed(); tick=setInterval(updTimer,500); updTimer(); }
+function stopClock(){ addQTime(); st.base=elapsed(); runFrom=null; qFrom=null; clearInterval(tick); save(); }
+window.addEventListener("beforeunload", ()=>{ if(runFrom){ addQTime(); st.base=elapsed(); save(); } });
+const app=document.getElementById("app");
+
+function answered(i){
+  const q=Q[i], v=st.a[i+1]||"";
+  if(q.t==="mc") return v.length===1;
+  if(q.t==="multi") return v.length===q.n;
+  const n=(q.steps||q.pairs).length; return v.split("-").filter(x=>x).length===n && !v.split("-").includes("0");
+}
+function nAnswered(){ return Q.filter((q,i)=>answered(i)).length; }
+
+function intro(){
+  app.innerHTML='<div class="card"><div class="kind">Paso 0 · Diagnóstico</div><h1>20 preguntas · 30 minutos</h1>'+
+  '<ul><li class="muted">Sirve para ver de dónde partes. No importa si no sabes las respuestas: contesta lo que creas y sigue.</li>'+
+  '<li class="muted">Cubre los 4 dominios del examen, 5 preguntas por dominio. Piensa como estratega de negocio: gana la decisión que tomaría quien dirige, no la que ejecutaría un ingeniero.</li>'+
+  '<li class="muted">No verás respuestas hasta que te califique. Puedes marcar preguntas para revisarlas y moverte libremente entre ellas.</li>'+
+  '<li class="muted">El timer cuenta hacia atrás desde 30:00 al dar clic en Iniciar. Al llegar a cero, el examen se cierra solo. Se guarda el tiempo total y el de cada pregunta.</li>'+
+  '<li class="muted">Si cierras la pestaña, el tiempo se pausa y sigues donde te quedaste. Para que cuente como examen real, hazlo de corrido.</li></ul>'+
+  '<div class="nav"><span class="sp"></span><button class="btn" id="go">Iniciar</button></div></div>';
+  document.getElementById("go").onclick=()=>{ st.started=true; save(); startClock(); show(); };
+}
+
+function show(){
+  const i=st.idx, q=Q[i], n=i+1, v=st.a[n]||"";
+  let h='<div class="card"><div class="kind">Pregunta '+n+' de '+Q.length+'</div><p class="stem" id="stem">'+esc(q.s)+'</p>';
+  if(q.t==="multi") h+='<p class="note">Respuesta múltiple: elige '+q.n+'.</p>';
+  if(q.t==="mc"||q.t==="multi"){
+    h+='<div role="group" aria-labelledby="stem">';
+    q.o.forEach((o,j)=>{ const on=v.includes(L[j]); h+='<label class="opt'+(on?" sel":"")+'"><input type="'+(q.t==="mc"?"radio":"checkbox")+'" name="r" value="'+L[j]+'"'+(on?" checked":"")+'><span><b>'+L[j]+')</b> '+esc(o)+'</span></label>'; });
+    h+='</div>';
+  } else if(q.t==="order"){
+    h+='<p class="note">Asigna a cada paso su posición (1 = primero).</p>';
+    const cur=v?v.split("-"):[]; const items=q.steps, perm=st.perm[i];
+    perm.forEach(k=>{ const sel=cur[k]||"0"; h+='<div class="row"><div>'+esc(items[k])+'</div><select data-k="'+k+'" aria-label="Posición de: '+esc(items[k])+'"><option value="0">Elige posición</option>'+items.map((x,p)=>'<option value="'+(p+1)+'"'+(String(p+1)===sel?" selected":"")+'>'+(p+1)+'</option>').join("")+'</select></div>'; });
+  } else {
+    h+='<p class="note">Elige el servicio que corresponde a cada necesidad. Cada servicio se usa una vez.</p>';
+    const cur=v?v.split("-"):[]; const perm=st.perm[i];
+    q.pairs.forEach((p,k)=>{ const sel=cur[k]||"0"; h+='<div class="row"><div>'+esc(p[0])+'</div><select data-k="'+k+'" aria-label="Servicio para: '+esc(p[0])+'"><option value="0">Elige un servicio</option>'+perm.map(r=>'<option value="'+(r+1)+'"'+(String(r+1)===sel?" selected":"")+'>'+esc(q.pairs[r][1])+'</option>').join("")+'</select></div>'; });
+  }
+  h+='<div class="nav"><button class="btn sec" id="prev"'+(i===0?" disabled":"")+'>Anterior</button><button class="btn sec flag'+(st.f[n]?" on":"")+'" id="flag" aria-pressed="'+(st.f[n]?"true":"false")+'">'+(st.f[n]?"Marcada para revisar":"Marcar para revisar")+'</button><span class="sp"></span>'+
+     (i<Q.length-1?'<button class="btn" id="next">Siguiente</button>':'<button class="btn" id="end">Terminar examen</button>')+'</div>';
+  h+='<details'+(st.openPal?" open":"")+'><summary>Ver todas las preguntas ('+nAnswered()+' de '+Q.length+' contestadas)</summary><div class="pal" id="pal"></div><p class="legend">Contestada = fondo claro. Marcada = borde amarillo. <span class="sp"></span></p><div class="nav"><span class="sp"></span><button class="btn sec" id="end2">Terminar examen</button></div></details></div>';
+  app.innerHTML=h;
+
+  if(q.t==="mc"||q.t==="multi"){
+    app.querySelectorAll('input[name="r"]').forEach(inp=>inp.addEventListener("change",()=>{
+      let val=[...app.querySelectorAll('input[name="r"]:checked')].map(x=>x.value).join("");
+      if(q.t==="multi" && val.length>q.n){ inp.checked=false; val=val.replace(inp.value,""); }
+      st.a[n]=val; save();
+      app.querySelectorAll("label.opt").forEach(lb=>lb.classList.toggle("sel", lb.querySelector("input").checked)); drawPal();
+    }));
+  } else {
+    app.querySelectorAll("select").forEach(s=>s.addEventListener("change",()=>{
+      const len=(q.steps||q.pairs).length; const cur=(st.a[n]||Array(len).fill("0").join("-")).split("-");
+      cur[+s.dataset.k]=s.value; st.a[n]=cur.join("-"); save(); drawPal();
+    }));
+  }
+  const go=k=>{ addQTime(); st.idx=k; save(); show(); window.scrollTo(0,0); };
+  document.getElementById("prev").onclick=()=>go(i-1);
+  if(document.getElementById("next")) document.getElementById("next").onclick=()=>go(i+1);
+  document.getElementById("flag").onclick=()=>{ st.f[n]=!st.f[n]; save(); show(); };
+  const ask=()=>{ const miss=Q.length-nAnswered(); const fl=Object.values(st.f).filter(Boolean).length;
+    if(confirm("¿Terminar el examen?"+(miss?"\nTe faltan "+miss+" pregunta(s) sin contestar.":"")+(fl?"\nTienes "+fl+" pregunta(s) marcadas para revisar.":""))) finishExam(false); };
+  if(document.getElementById("end")) document.getElementById("end").onclick=ask;
+  document.getElementById("end2").onclick=ask;
+  app.querySelector("details").addEventListener("toggle",e=>{ st.openPal=e.target.open; save(); });
+  drawPal();
+  function drawPal(){
+    const pal=document.getElementById("pal"); pal.innerHTML="";
+    Q.forEach((qq,k)=>{ const b=document.createElement("button"); b.textContent=k+1; b.type="button";
+      if(answered(k)) b.classList.add("ans"); if(st.f[k+1]) b.classList.add("flg"); if(k===i) b.classList.add("cur");
+      b.setAttribute("aria-label","Pregunta "+(k+1)+(answered(k)?", contestada":", sin contestar")+(st.f[k+1]?", marcada":""));
+      b.onclick=()=>go(k); pal.appendChild(b); });
+    app.querySelector("summary").textContent="Ver todas las preguntas ("+nAnswered()+" de "+Q.length+" contestadas)";
+  }
+}
+
+function resultText(){
+  return "Diagnóstico AIB-C01\nTiempo usado: "+fmt(st.base)+" de 30:00\nContestadas: "+nAnswered()+" de "+Q.length+"\n"+
+    Q.map((q,i)=>{ const n=i+1; return n+": "+(st.a[n]||"-")+" · "+(st.sec[n]||0)+" s"+(st.f[n]?" · marcada":""); }).join("\n");
+}
+function finishExam(auto){
+  if(!st.done){ stopClock(); st.done=true; st.fin=Date.now(); st.auto=!!auto; save(); }
+  const fl=Object.keys(st.f).filter(k=>st.f[k]).length;
+  const dom={D1:[0,0],D2:[0,0],D3:[0,0],D4:[0,0]};
+  Q.forEach((q,i)=>{ dom[q.d][0]++; dom[q.d][1]+=(st.sec[i+1]||0); });
+  app.innerHTML='<div class="card"><div class="kind">Examen terminado'+(st.auto?" · se acabó el tiempo":"")+'</div><h1>Listo</h1>'+
+   '<p class="muted">Tiempo usado: <b style="color:#e2e8f0">'+fmt(st.base)+'</b> de 30:00 · Contestadas: <b style="color:#e2e8f0">'+nAnswered()+' de '+Q.length+'</b> · Marcadas: '+fl+'</p>'+
+   '<table><thead><tr><th>Dominio</th><th>Preguntas</th><th>Tiempo total</th></tr></thead><tbody>'+
+   Object.keys(dom).map(k=>'<tr><td>'+k+'</td><td>'+dom[k][0]+'</td><td>'+fmt(dom[k][1]*1000)+'</td></tr>').join("")+'</tbody></table>'+
+   '<p class="muted">Ya está calificado. Revisa tus respuestas y luego regresa al Inicio: ahí verás tu ruta ajustada.</p><div class="nav"><a class="btn" href="diagnostico-revision.html" style="text-decoration:none">Ver mi calificación y respuestas</a></div>'+
+   '<div class="nav"><span class="sp"></span><button class="btn sec" id="sv">Guardar archivo</button><button class="btn" id="cp">Copiar resultados</button></div><div id="msg" role="status"></div></div>';
+  document.getElementById("timer").textContent="Fin";
+  const msg=t=>document.getElementById("msg").textContent=t;
+  document.getElementById("cp").onclick=async()=>{ try{ await navigator.clipboard.writeText(resultText()); msg("Copiado."); }catch(e){ prompt("Copia este texto:",resultText()); } };
+  document.getElementById("sv").onclick=async()=>{
+    const data=JSON.stringify({examen:"diagnostico", fecha:new Date().toISOString(), tiempo_usado_seg:Math.round(st.base/1000), tiempo_usado:fmt(st.base), se_acabo_el_tiempo:!!st.auto, respuestas:st.a, segundos_por_pregunta:st.sec, marcadas:st.f},null,2);
+    try{ if(window.showSaveFilePicker){ const h=await window.showSaveFilePicker({suggestedName:"respuestas-diagnostico.json",types:[{description:"JSON",accept:{"application/json":[".json"]}}]}); const w=await h.createWritable(); await w.write(data); await w.close(); }
+      else { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([data],{type:"application/json"})); a.download="respuestas-diagnostico.json"; a.click(); }
+      msg("Archivo guardado."); }catch(e){ if(e.name!=="AbortError") msg("No se pudo guardar: usa Copiar resultados."); }
+  };
+}
+
+save();
+if(!st.started) intro();
+else if(st.done) finishExam(st.auto);
+else { startClock(); show(); }
+</script>
+</body>
+</html>

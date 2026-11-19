@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<script src="auth.js"></script>
+<script src="sync.js?v=1.0.0"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hoja de contrastes AIB-C01</title>
+<style>
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.55}
+  main{padding-top:52px !important;max-width:960px;margin:0 auto;padding:28px 18px 60px}
+  h1{font-size:26px;color:#ff9900;margin:0 0 4px}
+  .sub{color:#94a3b8;margin:0 0 22px;font-size:14px}
+  h2{font-size:18px;margin:30px 0 8px;border-bottom:1px solid #1e2a44;padding-bottom:6px}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:14.5px}
+  th,td{border:1px solid #1e2a44;padding:9px 10px;text-align:left;vertical-align:top}
+  th{background:#111c33;color:#ff9900}
+  tr:nth-child(even) td{background:#0d1629}
+  .tip{border-left:3px solid #ff9900;background:#111c33;padding:9px 12px;margin:10px 0;border-radius:0 8px 8px 0;font-size:14.5px}
+  .tip b{color:#ff9900}
+  @media(max-width:560px){th,td{padding:7px;font-size:13.5px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<a href="index.html" style="position:fixed;top:10px;left:12px;z-index:50;background:#1e2a44;color:#e2e8f0;text-decoration:none;font:700 13px -apple-system,BlinkMacSystemFont,sans-serif;padding:7px 11px;border-radius:8px">Inicio</a>
+<main>
+<h1>Hoja de contrastes AIB-C01</h1>
+<p class="sub">Las decisiones de negocio que más se confunden en el examen. En AIB-C01 casi siempre gana la respuesta que tomaría quien dirige el negocio, no la que ejecutaría un ingeniero.</p>
+
+<h2>0. Cómo pensar las preguntas de este examen</h2>
+<table>
+<thead><tr><th>Si una opción dice...</th><th>Suele ser</th></tr></thead>
+<tbody>
+<tr><td>Programar, configurar, ajustar hiperparámetros, elegir un algoritmo</td><td><b>Distractor</b>: es tarea del equipo técnico, no del estratega</td></tr>
+<tr><td>Prohibir todo, esperar a que haya regulación, lanzar todo de golpe</td><td><b>Distractor</b>: extremo y sin gestión del riesgo</td></tr>
+<tr><td>Medir la línea base, alinear con objetivos, empezar pequeño y escalar por etapas</td><td><b>Buena señal</b></td></tr>
+<tr><td>Involucrar a negocio, legal, cumplimiento y tecnología con responsables claros</td><td><b>Buena señal</b></td></tr>
+<tr><td>Supervisión humana en decisiones de alto riesgo</td><td><b>Buena señal</b></td></tr>
+</tbody>
+</table>
+<div class="tip"><b>Truco:</b> lee qué pide la pregunta ("primer paso", "MÁS efectivo", "menor esfuerzo"). La respuesta correcta cumple todos los requisitos; las malas fallan en uno.</div>
+
+<h2>1. Tipo de solución</h2>
+<table>
+<thead><tr><th>Si el problema...</th><th>Es</th></tr></thead>
+<tbody>
+<tr><td>Tiene reglas fijas y conocidas</td><td><b>Automatización con reglas</b> (no hace falta IA)</td></tr>
+<tr><td>Busca patrones en datos históricos para predecir</td><td><b>Machine learning</b></td></tr>
+<tr><td>Crea contenido: resúmenes, textos, respuestas</td><td><b>IA generativa</b></td></tr>
+<tr><td>Planea y ejecuta tareas de varios pasos con herramientas</td><td><b>Agente de IA</b> (autonomía, uso de herramientas, comunicación entre agentes, orquestación)</td></tr>
+<tr><td>Recomendar productos / entender texto / ver imágenes / leer documentos</td><td>Motor de recomendaciones / NLP / visión por computadora / extracción de documentos</td></tr>
+</tbody>
+</table>
+
+<h2>2. Adaptar un modelo (visión de negocio)</h2>
+<table>
+<thead><tr><th>Necesidad</th><th>Técnica</th><th>Costo</th></tr></thead>
+<tbody>
+<tr><td>Mejorar formato, tono o instrucciones</td><td><b>Prompt engineering</b></td><td>El más bajo</td></tr>
+<tr><td>Responder con documentos propios que cambian</td><td><b>RAG</b> (Bedrock Knowledge Bases)</td><td>Bajo</td></tr>
+<tr><td>Fijar estilo o tarea con ejemplos etiquetados</td><td><b>Fine-tuning</b></td><td>Medio a alto</td></tr>
+<tr><td>Un documento no cabe completo en una solicitud</td><td>Límite de la <b>ventana de contexto</b> (tokens)</td><td>Más tokens, más costo</td></tr>
+</tbody>
+</table>
+
+<h2>3. Shadow AI</h2>
+<table>
+<thead><tr><th>Opción</th><th>Veredicto</th></tr></thead>
+<tbody>
+<tr><td>Prohibir toda la IA generativa</td><td><b>Mal</b>: la gente la usa a escondidas</td></tr>
+<tr><td>Clasificar herramientas (aprobadas, bloqueadas, en evaluación) y dar opciones aprobadas</td><td><b>Bien</b></td></tr>
+<tr><td>Monitorear el uso y los costos de la IA</td><td><b>Bien</b></td></tr>
+</tbody>
+</table>
+
+<h2>4. Construir, comprar o asociarse</h2>
+<table>
+<thead><tr><th>Situación</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Es tu diferenciador, tienes talento, datos y tiempo</td><td><b>Construir</b></td></tr>
+<tr><td>Hay una solución probada y poco tiempo o poco talento interno</td><td><b>Comprar</b> (AWS Marketplace para evaluar opciones)</td></tr>
+<tr><td>Necesitas expertos externos y algo a la medida</td><td><b>Asociarse</b></td></tr>
+</tbody>
+</table>
+
+<h2>5. Medir valor</h2>
+<table>
+<thead><tr><th>Concepto</th><th>No confundir con</th></tr></thead>
+<tbody>
+<tr><td><b>Línea base</b>: se mide ANTES de lanzar</td><td>El resultado después de lanzar</td></tr>
+<tr><td><b>KPI tangible</b>: costo, ingresos, horas</td><td><b>KPI intangible</b>: satisfacción, productividad percibida</td></tr>
+<tr><td><b>Indicador adelantado</b>: adopción, uso semanal (se ve pronto)</td><td><b>Indicador rezagado</b>: ahorro anual (se ve tarde)</td></tr>
+<tr><td><b>ROI</b> = (beneficio - costo) / costo</td><td>Solo contar el ahorro sin restar el costo</td></tr>
+</tbody>
+</table>
+
+<h2>6. Costos en AWS</h2>
+<table>
+<thead><tr><th>Necesidad</th><th>Herramienta</th></tr></thead>
+<tbody>
+<tr><td>Estimar el costo antes de construir</td><td><b>AWS Pricing Calculator</b></td></tr>
+<tr><td>Ver y analizar el gasto real</td><td><b>AWS Cost Explorer</b> (y presupuestos con alertas)</td></tr>
+<tr><td>Uso estable a 1 o 3 años, precio más bajo</td><td><b>Savings Plans</b></td></tr>
+<tr><td>Pagar por lo que usas / por servidor / por usuario</td><td>Precio por <b>consumo</b> (tokens) / por <b>instancia</b> / por <b>asiento</b></td></tr>
+</tbody>
+</table>
+
+<h2>7. IA responsable</h2>
+<table>
+<thead><tr><th>Dimensión</th><th>Pista en la pregunta</th></tr></thead>
+<tbody>
+<tr><td><b>Equidad</b></td><td>No discriminar por género, edad, origen</td></tr>
+<tr><td><b>Explicabilidad</b></td><td>Explicar por qué se negó un crédito</td></tr>
+<tr><td><b>Privacidad</b></td><td>Datos personales de clientes</td></tr>
+<tr><td><b>Seguridad (safety)</b></td><td>Contenido dañino, daños a personas</td></tr>
+<tr><td><b>Transparencia</b></td><td>Avisar que es IA, publicar sus límites</td></tr>
+<tr><td><b>Robustez y veracidad</b></td><td>Funciona bien y no inventa</td></tr>
+</tbody>
+</table>
+<div class="tip"><b>Truco:</b> si el negocio choca con una obligación (explicar, proteger datos), gana la obligación. La IA responsable se integra desde la planeación (governance by design).</div>
+
+<h2>8. Gobernanza y riesgo</h2>
+<table>
+<thead><tr><th>Tema</th><th>Respuesta típica</th></tr></thead>
+<tbody>
+<tr><td>Quién gobierna la IA</td><td>Comité <b>multifuncional</b> con responsables claros (no solo TI ni solo legal)</td></tr>
+<tr><td>Crédito, contratación, salud</td><td><b>Riesgo alto</b>: más controles, revisión humana y documentación</td></tr>
+<tr><td>Productividad interna (ortografía, títulos)</td><td><b>Riesgo bajo</b></td></tr>
+<tr><td>Quién protege qué en AWS</td><td><b>Responsabilidad compartida</b>: AWS la infraestructura; tú los datos, accesos y uso</td></tr>
+<tr><td>Sesgo después de lanzar</td><td><b>Bias drift</b>: monitoreo continuo</td></tr>
+<tr><td>Contenido dañino / derechos de autor</td><td><b>Guardrails</b> / revisión de propiedad intelectual</td></tr>
+</tbody>
+</table>
+
+<h2>9. Madurez y transformación</h2>
+<table>
+<thead><tr><th>Etapa</th><th>Señal</th></tr></thead>
+<tbody>
+<tr><td><b>Envision</b></td><td>Entender la IA, alinear a la dirección, identificar casos</td></tr>
+<tr><td><b>Experiment</b></td><td>Pilotos y POC; muchos pilotos sin producción (pilot fatigue)</td></tr>
+<tr><td><b>Launch</b></td><td>Producción con gobernanza y valor medido</td></tr>
+<tr><td><b>Scale</b></td><td>Componentes reutilizables, estándares, toda la empresa</td></tr>
+</tbody>
+</table>
+<table>
+<thead><tr><th>Para...</th><th>Usa</th></tr></thead>
+<tbody>
+<tr><td>Planear la adopción revisando 6 perspectivas</td><td><b>AWS CAF</b>: Business, People, Governance, Platform, Security, Operations</td></tr>
+<tr><td>Escalar y compartir lo aprendido</td><td><b>Centro de excelencia (CoE)</b></td></tr>
+<tr><td>Sostener el impulso</td><td><b>Patrocinio ejecutivo</b> y <b>AI champions</b></td></tr>
+<tr><td>Bajar el miedo de los empleados</td><td><b>Comunicación transparente</b> sobre tiempos y roles + capacitación</td></tr>
+<tr><td>Acelerar la alfabetización en IA</td><td>POC, hackatones, capacitación, capacitación en IA responsable</td></tr>
+<tr><td>Un modelo de churn con datos en 5 sistemas</td><td>Primero <b>preparación de datos</b>: integrar silos, dueños y calidad</td></tr>
+</tbody>
+</table>
+<div class="tip"><b>Truco:</b> escalar = victorias tempranas + métricas + CoE + por etapas. Lanzar en todas las sucursales el mismo día casi siempre es la opción mala.</div>
+</main>
+</body>
+</html>
