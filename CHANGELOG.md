@@ -7,6 +7,9 @@ La misma lista se abre al dar clic en el texto "vX.Y.Z — build AAAA-MM-DD" al 
 - Sitio: https://hackerjj.github.io/jair-aib-c01/ (repo hackerjj/jair-aib-c01)
 - Backend de resultados: trento-social-backend en Render, usuario `jairaib`
 
+## v1.0.1 — 19 nov 2026 · 23:38
+### Agregado
+- Ícono del sitio (favicon) en todas las páginas: círculo naranja con "AIB", para distinguir la pestaña del curso de AIF-C01.
 ## v1.0.0 — 19 nov 2026 · 14:45
 ### Agregado
 - Sitio nuevo para **AWS Certified AI Business Strategist (AIB-C01)**, con la misma estrategia que funcionó en AIF-C01: diagnóstico, guía paso a paso, hoja de contrastes y, después, prácticas con tus errores y simulacros.
